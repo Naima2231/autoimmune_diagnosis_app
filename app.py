@@ -4,7 +4,7 @@ import joblib
 from sklearn.preprocessing import LabelEncoder
 
 # Load the trained model
-model = joblib.load("autoimmune_diagnosis_model.pk1")  # Your updated model filename
+model = joblib.load("autoimmune_diagnosis_model.pkl")  # Your updated model filename
 
 # Re-create label encoder and fit the correct class order
 label_encoder = LabelEncoder()
