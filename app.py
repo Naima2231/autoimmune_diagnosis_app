@@ -36,5 +36,17 @@ if st.button("Predict Diagnosis"):
                             morning_stiffness, photosensitivity,
                             dry_eyes, dry_mouth, skin_hardening,
                             muscle_weakness, vision_problems]])
-    prediction = model.predict(input_data)[0]
-    st.success(f"Predicted Diagnosis: {prediction}")
+    # Assuming you used LabelEncoder during training:
+from sklearn.preprocessing import LabelEncoder
+
+# Re-create the encoder and fit on original disease labels
+label_encoder = LabelEncoder()
+label_encoder.fit(['SLE', 'RA', 'MS', "Sjogren's", 'SSc', 'Healthy'])
+
+# Make prediction
+prediction = model.predict(input_df)[0]
+
+# Decode the numeric prediction back to disease name
+predicted_disease = label_encoder.inverse_transform([prediction])[0]
+
+st.success(f"Predicted Diagnosis: {predicted_disease}")
