@@ -1,52 +1,74 @@
-# ✅ app.py - Streamlit App
 import streamlit as st
+import pandas as pd
 import joblib
-import numpy as np
-
-# Load the trained model (make sure this file exists in the same folder)
-model = joblib.load("autoimmune_diagnosis_model.pkl")
-
-# Define input fields for lab test values and symptoms
-st.title("Autoimmune Disease Diagnosis App")
-st.write("Enter the patient's lab results and symptoms below:")
-
-# Lab test inputs
-crp = st.number_input("CRP (mg/L)", min_value=0.0, value=5.0)
-esr = st.number_input("ESR (mm/hr)", min_value=0.0, value=10.0)
-rf = st.number_input("RF (IU/mL)", min_value=0.0, value=10.0)
-ana = st.number_input("ANA (titer ratio or numeric value)", min_value=0.0, value=0.0)
-anti_ccp = st.number_input("Anti-CCP (U/mL)", min_value=0.0, value=5.0)
-
-# Symptom checkboxes
-joint_pain = st.checkbox("Joint Pain")
-fatigue = st.checkbox("Fatigue")
-butterfly_rash = st.checkbox("Butterfly Rash")
-fever = st.checkbox("Fever")
-morning_stiffness = st.checkbox("Morning Stiffness")
-photosensitivity = st.checkbox("Photosensitivity")
-dry_eyes = st.checkbox("Dry Eyes")
-dry_mouth = st.checkbox("Dry Mouth")
-skin_hardening = st.checkbox("Skin Hardening")
-muscle_weakness = st.checkbox("Muscle Weakness")
-vision_problems = st.checkbox("Vision Problems")
-
-if st.button("Predict Diagnosis"):
-    input_data = np.array([[crp, esr, rf, ana, anti_ccp,
-                            joint_pain, fatigue, butterfly_rash, fever,
-                            morning_stiffness, photosensitivity,
-                            dry_eyes, dry_mouth, skin_hardening,
-                            muscle_weakness, vision_problems]])
-    # Assuming you used LabelEncoder during training:
 from sklearn.preprocessing import LabelEncoder
 
-# Re-create the encoder and fit on original disease labels
+# Load the trained model
+model = joblib.load("autoimmune_diagnosis_model.pk1")  # Your updated model filename
+
+# Re-create label encoder and fit the correct class order
 label_encoder = LabelEncoder()
-label_encoder.fit(['SLE', 'RA', 'MS', "Sjogren's", 'SSc', 'Healthy'])
+label_encoder.fit(['Healthy', 'MS', 'RA', 'SLE', 'SSc', "Sjogren's"])
 
-# Make prediction
-prediction = model.predict(input_df)[0]
+# Title
+st.title("🧠 Autoimmune Disease Diagnosis App")
+st.markdown("Enter symptoms and lab test results to predict the most likely autoimmune disease.")
 
-# Decode the numeric prediction back to disease name
-predicted_disease = label_encoder.inverse_transform([prediction])[0]
+# Lab test input
+st.header("🔬 Lab Test Results")
+CRP = st.number_input("CRP", min_value=0.0)
+ESR = st.number_input("ESR", min_value=0.0)
+RF = st.number_input("Rheumatoid Factor (RF)", min_value=0.0)
+ANA = st.number_input("ANA", min_value=0.0)
+Anti_CCP = st.number_input("Anti-CCP", min_value=0.0)
 
-st.success(f"Predicted Diagnosis: {predicted_disease}")
+# Symptom input
+st.header("🩺 Symptoms")
+Joint_Pain = st.checkbox("Joint Pain")
+Fatigue = st.checkbox("Fatigue")
+Butterfly_Rash = st.checkbox("Butterfly Rash")
+Fever = st.checkbox("Fever")
+Morning_Stiffness = st.checkbox("Morning Stiffness")
+Photosensitivity = st.checkbox("Photosensitivity")
+Dry_Eyes = st.checkbox("Dry Eyes")
+Dry_Mouth = st.checkbox("Dry Mouth")
+Skin_Hardening = st.checkbox("Skin Hardening")
+Muscle_Weakness = st.checkbox("Muscle Weakness")
+Vision_Problems = st.checkbox("Vision Problems")
+
+# Predict button
+if st.button("🔎 Predict Disease"):
+    input_data = {
+        'CRP': CRP,
+        'ESR': ESR,
+        'RF': RF,
+        'ANA': ANA,
+        'Anti_CCP': Anti_CCP,
+        'Joint_Pain': Joint_Pain,
+        'Fatigue': Fatigue,
+        'Butterfly_Rash': Butterfly_Rash,
+        'Fever': Fever,
+        'Morning_Stiffness': Morning_Stiffness,
+        'Photosensitivity': Photosensitivity,
+        'Dry_Eyes': Dry_Eyes,
+        'Dry_Mouth': Dry_Mouth,
+        'Skin_Hardening': Skin_Hardening,
+        'Muscle_Weakness': Muscle_Weakness,
+        'Vision_Problems': Vision_Problems
+    }
+
+    input_df = pd.DataFrame([input_data])
+
+    # Convert True/False to 1/0
+    symptom_cols = [
+        'Joint_Pain', 'Fatigue', 'Butterfly_Rash', 'Fever', 'Morning_Stiffness',
+        'Photosensitivity', 'Dry_Eyes', 'Dry_Mouth', 'Skin_Hardening',
+        'Muscle_Weakness', 'Vision_Problems'
+    ]
+    input_df[symptom_cols] = input_df[symptom_cols].astype(int)
+
+    # Predict
+    prediction = model.predict(input_df)[0]
+    predicted_disease = label_encoder.inverse_transform([prediction])[0]
+
+    st.success(f"✅ **Predicted Diagnosis:** {predicted_disease}")
