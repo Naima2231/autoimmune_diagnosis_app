@@ -1,39 +1,40 @@
+# ✅ app.py - Streamlit App
 import streamlit as st
 import joblib
-import pandas as pd
 import numpy as np
 
-# Load pre-trained model
-model = joblib.load("your_model_file.pkl")  # Replace with your model file path
+# Load the trained model (make sure this file exists in the same folder)
+model = joblib.load("autoimmune_diagnosis_model.pkl")
 
-# Define the feature names for symptoms and lab results
-feature_names = ['CRP', 'ESR', 'RF', 'ANA', 'Anti_CCP', 'Joint_Pain', 'Fatigue', 
-                 'Butterfly_Rash', 'Fever', 'Morning_Stiffness', 'Photosensitivity', 
-                 'Dry_Eyes', 'Dry_Mouth', 'Skin_Hardening', 'Muscle_Weakness', 
-                 'Vision_Problems']
+# Define input fields for lab test values and symptoms
+st.title("Autoimmune Disease Diagnosis App")
+st.write("Enter the patient's lab results and symptoms below:")
 
-# Create the user input form
-def user_input():
-    st.title("Autoimmune Disease Diagnosis")
-    st.write("Please enter the patient's symptoms and lab results:")
+# Lab test inputs
+crp = st.number_input("CRP (mg/L)", min_value=0.0, value=5.0)
+esr = st.number_input("ESR (mm/hr)", min_value=0.0, value=10.0)
+rf = st.number_input("RF (IU/mL)", min_value=0.0, value=10.0)
+ana = st.number_input("ANA (titer ratio or numeric value)", min_value=0.0, value=0.0)
+anti_ccp = st.number_input("Anti-CCP (U/mL)", min_value=0.0, value=5.0)
 
-    # Input fields for the symptoms and lab results
-    data = {}
-    for feature in feature_names:
-        data[feature] = st.number_input(f"{feature}:", min_value=0, max_value=100, step=1)
+# Symptom checkboxes
+joint_pain = st.checkbox("Joint Pain")
+fatigue = st.checkbox("Fatigue")
+butterfly_rash = st.checkbox("Butterfly Rash")
+fever = st.checkbox("Fever")
+morning_stiffness = st.checkbox("Morning Stiffness")
+photosensitivity = st.checkbox("Photosensitivity")
+dry_eyes = st.checkbox("Dry Eyes")
+dry_mouth = st.checkbox("Dry Mouth")
+skin_hardening = st.checkbox("Skin Hardening")
+muscle_weakness = st.checkbox("Muscle Weakness")
+vision_problems = st.checkbox("Vision Problems")
 
-    # Convert user input into dataframe
-    input_df = pd.DataFrame([data])
-    return input_df
-
-# Prediction function
-def predict(input_data):
-    prediction = model.predict(input_data)
-    return prediction
-
-# Display user input and prediction
-input_data = user_input()
-if st.button("Predict"):
-    result = predict(input_data)
-    st.write(f"Predicted Disease: {result[0]}")
-
+if st.button("Predict Diagnosis"):
+    input_data = np.array([[crp, esr, rf, ana, anti_ccp,
+                            joint_pain, fatigue, butterfly_rash, fever,
+                            morning_stiffness, photosensitivity,
+                            dry_eyes, dry_mouth, skin_hardening,
+                            muscle_weakness, vision_problems]])
+    prediction = model.predict(input_data)[0]
+    st.success(f"Predicted Diagnosis: {prediction}")
